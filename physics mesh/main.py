@@ -15,10 +15,8 @@ class Point:
         self.origin_loc = loc
         self.velocity = [0, 0]
         self.acceleration = [0, 0]
-        #{matrix loc : Point()}
-        self.connected_points = {}
-        self.grav_constant = 0.25
-        self.motion_resistance = 0.005
+        self.grav_constant = 0.48
+        self.motion_resistance = 0.999
         self.radius = 5
         self.pinned = False
 
@@ -30,7 +28,7 @@ class Point:
         self.acceleration[1] = self.grav_constant
 
     def location_handler(self, dt):
-        future_loc = [self.loc[i] + (self.loc[i] - self.prev_loc[i]) * self.motion_resistance + self.acceleration[i] * self.motion_resistance * (dt ** 2) for i in range(2)]
+        future_loc = [self.loc[i] + (self.loc[i] - self.prev_loc[i]) * (1 - self.motion_resistance) + self.acceleration[i] * (1 - self.motion_resistance) * (dt ** 2) for i in range(2)]
         future_loc = [max(0, min(future_loc[i], SCREEN_SIZE[i])) for i in range(2)]
         self.prev_loc = self.loc.copy()
         self.loc = future_loc.copy()
@@ -39,15 +37,11 @@ class Point:
         #draw point
         pygame.draw.circle(surf, (255, 255, 255), self.loc, self.radius)
 
-        #draw connection segments
-        for k in self.connected_points:
-            pygame.draw.line(surf, (255, 255, 255), self.loc, self.connected_points[k].loc, 5)
-        
     def update(self, surf, dt):
         self.draw(surf)
         if not self.pinned:
             self.acceleration_handler()
-            for i in range(5):
+            for i in range(10):
                 self.location_handler(dt)
         else:
             self.loc = [i for i in self.origin_loc]
@@ -55,7 +49,7 @@ class Point:
 
 class Line:
     #a and b are points
-    def __init__(self, a, b, l=20):
+    def __init__(self, a, b, l=16):
         self.a = a
         self.b = b
         self.length = l
@@ -118,7 +112,7 @@ class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         self.time = pygame.time.Clock()
-        self.mesh = Mesh((100, 50), (200, 200), (10, 10))
+        self.mesh = Mesh((50, 50), (280, 200), (20, 20))
         self.target_points = {}
         self.mouse_down = False
         self.prev_mouse_pos = pygame.mouse.get_pos()
