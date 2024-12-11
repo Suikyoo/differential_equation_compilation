@@ -13,7 +13,6 @@ class Point:
         self.prev_loc = list(loc)
         self.loc = list(loc)
         self.origin_loc = loc
-        self.velocity = [0, 0]
         self.acceleration = [0, 0]
         self.grav_constant = 0.48
         self.motion_resistance = 0.999
